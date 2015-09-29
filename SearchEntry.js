@@ -17,7 +17,8 @@ var SearchEntry = React.createClass({
     return(
       {
         queryWord: '',
-        errorMessage: ''
+        errorMessage: '',
+        isLoading: false
       }
     );
   },
@@ -29,7 +30,9 @@ var SearchEntry = React.createClass({
     );
   },
   searchEntry: function() {
-    this.viewLoadingData();
+    this.setState(
+      { isLoading: true } 
+    );
     this.fetchData();
   },
   fetchData: function() {
@@ -71,25 +74,31 @@ var SearchEntry = React.createClass({
     );
   },
   render: function() {
-    return (
-      <View style={styles.container}>
-        <View>
-          <Text style={styles.instructions}>Search by keyword</Text>
+    if (this.state.isLoading) {
+      return (
+        this.viewLoadingData()
+      );
+    } else {
+      return (
+        <View style={styles.container}>
           <View>
-            <TextInput style={styles.searchInput} onChange={this.queryInput} />
+            <Text style={styles.instructions}>Search by keyword</Text>
+            <View>
+              <TextInput style={styles.searchInput} onChange={this.queryInput} />
+            </View>
           </View>
+          <TouchableHighlight
+            style={styles.button}
+            underlayColor='#F1C40F'
+            >
+            <Text style={styles.buttonText} onPress={this.searchEntry}>Search</Text>
+          </TouchableHighlight>
+          <Text style={styles.errorMessage}>
+            {this.state.errorMessage}
+          </Text>
         </View>
-        <TouchableHighlight
-          style={styles.button}
-          underlayColor='#F1C40F'
-          >
-          <Text style={styles.buttonText} onPress={this.searchEntry}>Search</Text>
-        </TouchableHighlight>
-        <Text style={styles.errorMessage}>
-          {this.state.errorMessage}
-        </Text>
-      </View>
-    );
+      );
+    }
   }
 });
 
@@ -135,6 +144,17 @@ var styles = StyleSheet.create({
     marginTop: 15,
     color: '#FF4500'
   },
+  activityIndicator: {
+    flex: 1,
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  loadingMessage: {
+    flex: 1,
+    fontSize: 20,
+    color: '#656565'
+  }
 });
 
 module.exports = SearchEntry;
