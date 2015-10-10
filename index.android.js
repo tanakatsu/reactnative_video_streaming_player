@@ -10,24 +10,39 @@ var {
   StyleSheet,
   Text,
   View,
+  Navigator
 } = React;
 
+var EntryList = require('./EntryList.android.js');
+var EntryDetail = require('./EntryDetail.dummy.js');
+var SearchEntry = require('./SearchEntry.android.js');
+
 var ReactVideoStreamingPlayer = React.createClass({
+
+  renderScene: function(route, nav) {
+    switch(route.id) {
+      case 'entrylist':
+        return (<EntryList {...route.passProps} navigator={nav} />);
+      case 'entrydetail':
+        return (<EntryDetail navigator={nav} />);
+      case 'searchentry':
+        return (<SearchEntry navigator={nav} />);
+    }
+  },
+
+  configureScene: function(route) {
+    return Navigator.SceneConfigs.FloatFromBottom;
+  },
+
   render: function() {
     return (
-      <View style={styles.container}>
-        <Text style={styles.welcome}>
-          Welcome to React Native!
-        </Text>
-        <Text style={styles.instructions}>
-          To get started, edit index.android.js
-        </Text>
-        <Text style={styles.instructions}>
-          Shake or press menu button for dev menu
-        </Text>
-      </View>
+      <Navigator
+        initialRoute={{id: 'entrylist'}}
+        renderScene={this.renderScene}
+        configureScene={this.configureScene}
+      />
     );
-  }
+  },
 });
 
 var styles = StyleSheet.create({
