@@ -13,21 +13,28 @@ var {
   Navigator
 } = React;
 
+var NavigationBar = require('react-native-navbar');
 var EntryList = require('./EntryList.android.js');
-var EntryDetail = require('./EntryDetail.dummy.js');
-var SearchEntry = require('./SearchEntry.android.js');
 
 var ReactVideoStreamingPlayer = React.createClass({
 
   renderScene: function(route, nav) {
-    switch(route.id) {
-      case 'entrylist':
-        return (<EntryList {...route.passProps} navigator={nav} />);
-      case 'entrydetail':
-        return (<EntryDetail navigator={nav} />);
-      case 'searchentry':
-        return (<SearchEntry navigator={nav} />);
+    var Component = route.component;
+    var navBar = route.navigationBar;
+
+    if (navBar) {
+      navBar = React.addons.cloneWithProps(navBar, {
+        navigator: nav,
+        route: route
+      });
     }
+
+    return (
+      <View style={styles.navigator}>
+        {navBar}
+        <Component {...route.passProps} navigator={nav} route={route} />
+      </View>
+    );
   },
 
   configureScene: function(route) {
@@ -37,7 +44,11 @@ var ReactVideoStreamingPlayer = React.createClass({
   render: function() {
     return (
       <Navigator
-        initialRoute={{id: 'entrylist'}}
+        style={styles.navigator}
+        initialRoute={{
+          component: EntryList,
+          navigationBar: <NavigationBar title='Featured Entlies' />
+        }}
         renderScene={this.renderScene}
         configureScene={this.configureScene}
       />

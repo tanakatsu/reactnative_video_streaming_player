@@ -1,8 +1,9 @@
 'use strict';
 
 var React = require('react-native');
-var EntryDetail = require('./EntryDetail.js');
+var EntryDetail = require('./EntryDetail.dummy.js');
 var ProgressBar = require('ProgressBarAndroid');
+var NavigationBar = require('react-native-navbar');
 
 var {
   StyleSheet,
@@ -71,8 +72,9 @@ var EntryList = React.createClass({
   onPressed: function(entry) {
     console.log(entry.hls_url);
     this.props.navigator.push({
+      component: EntryDetail,
+      navigationBar: <NavigationBar title={entry.name} />,
       title: entry.name,
-      id: 'entrydetail',
       passProps: { video_url: entry.hls_url, thumbnail_url: entry.thumbnail_url }
     })
   },

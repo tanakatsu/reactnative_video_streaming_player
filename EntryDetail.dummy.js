@@ -17,7 +17,7 @@ var EntryDetail = React.createClass({
     return (
       <View style={styles.container}>
         <Text style={styles.title}>WebView Mock</Text>
-        <Text>WebView is not implemented for Android currently.</Text>
+        <Text>WebView is not supported on Android currently.</Text>
         <TouchableHighlight onPress={this._handlePress} style={styles.button}>
           <Text style={styles.buttonText}>back</Text>
         </TouchableHighlight>

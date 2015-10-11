@@ -2,6 +2,8 @@
 
 var React = require('react-native');
 var ProgressBar = require('ProgressBarAndroid');
+var NavigationBar = require('react-native-navbar');
+var EntryList = require('./EntryList.android.js');
 
 var {
   StyleSheet,
@@ -44,8 +46,9 @@ var SearchEntry = React.createClass({
 
         // https://github.com/Kureev/react-native-navbar/issues/12
         this.props.navigator.push({
+          component: EntryList,
+          navigationBar: <NavigationBar title='Search Results' />,
           title: 'Search Results',
-          id: 'entrylist',
           passProps: {entries: responseData}
         });
       } else {
