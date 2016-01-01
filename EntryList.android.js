@@ -1,9 +1,8 @@
 'use strict';
 
 var React = require('react-native');
-var EntryDetail = require('./EntryDetail.dummy.js');
 var ProgressBar = require('ProgressBarAndroid');
-var NavigationBar = require('react-native-navbar');
+var SearchBar = require('./SearchBar.android.js');
 
 var {
   StyleSheet,
@@ -23,33 +22,31 @@ var EntryList = React.createClass({
         dataSource: new ListView.DataSource({
           rowHasChanged: (row1, row2) => row1 != row2
         }),
-        isLoaded: false
+        isLoaded: false,
+        isSearching: false
       }
     );
   },
-  fetchData: function(){
-    fetch(API_URL)
+  fetchData: function(queryWord){
+    var url = API_URL;
+    if (queryWord) {
+      url += "?q=" + queryWord;
+    }
+    console.log("url=" + url);
+
+    fetch(url)
     .then((response) => response.json())
     .then((responseData) => {
       this.setState({
         dataSource: this.state.dataSource.cloneWithRows(responseData),
-        isLoaded: true
+        isLoaded: true,
+        isSearching: false
       });
     })
     .done();
   },
   componentDidMount: function(){
-    if (typeof this.props.entries !== 'undefined') {
-      console.log("I'm in search condition");
-      this.setState(
-        {
-          dataSource: this.state.dataSource.cloneWithRows(this.props.entries),
-          isLoaded: true
-        }
-      );
-    } else {
-      this.fetchData();
-    }
+    this.fetchData();
   },
   renderEntry: function(entry) {
     return(
@@ -70,32 +67,61 @@ var EntryList = React.createClass({
     );
   },
   onPressed: function(entry) {
-    console.log(entry.hls_url);
     this.props.navigator.push({
-      component: EntryDetail,
-      navigationBar: <NavigationBar title={entry.name} />,
-      title: entry.name,
-      passProps: { video_url: entry.hls_url, thumbnail_url: entry.thumbnail_url }
+      name: 'movie',
+      movie: { video_url: entry.hls_url, thumbnail_url: entry.thumbnail_url },
+      title: entry.name
     })
   },
   viewLoadingData: function(){
     return(
-      <View style={styles.activityIndicator}>
-        <ProgressBar />
-        <View>
-          <Text style={styles.loadingMessage}>Please wait a second ...</Text>
+      <View style={{flex: 1}}>
+        <SearchBar
+          onFocus={() => 
+            this.refs.listview && this.refs.listview.getScrollResponder().scrollTo(0, 0)}
+          />
+        <View style={styles.activityIndicatorContainer}>
+          <View style={styles.activityIndicator}>
+            <ProgressBar />
+            <View>
+              <Text style={styles.loadingMessage}>Please wait a second ...</Text>
+            </View>
+          </View>
         </View>
       </View>
     );
   },
+
+  onSearchChange: function(event: Object) {
+    var query = event.nativeEvent.text.toLowerCase();
+    console.log("query=" + query);
+
+    if (query === '') {
+      this.setState({isSearching: false});
+      this.fetchData();
+    } else {
+      this.setState({isSearching: true});
+      this.fetchData(query);
+    }
+  },
+
   render: function() {
     if (this.state.isLoaded) {
       return (
-        <ListView
-          style={styles.listView}
-          dataSource={this.state.dataSource}
-          renderRow={this.renderEntry}
-          />
+        <View style={{flex: 1}}>
+          <SearchBar
+            onSearchChange={this.onSearchChange}
+            isLoading={this.state.isSearching}
+            onFocus={() => 
+              this.refs.listview && this.refs.listview.getScrollResponder().scrollTo(0, 0)}
+            />
+          <ListView
+            style={styles.listView}
+            dataSource={this.state.dataSource}
+            renderRow={this.renderEntry}
+            ref="listview"
+            />
+        </View>
       );
     } else {
       return(
@@ -136,11 +162,15 @@ var styles = StyleSheet.create({
   listView: {
     backgroundColor: '#F5FCFF'
   },
+  activityIndicatorContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
   activityIndicator: {
     flex: 1,
     flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   loadingMessage: {
     flex: 1,

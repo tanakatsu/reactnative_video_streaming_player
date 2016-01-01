@@ -10,47 +10,61 @@ var {
   StyleSheet,
   Text,
   View,
-  Navigator
+  Navigator,
+  BackAndroid,
+  ToolbarAndroid
 } = React;
 
-var NavigationBar = require('react-native-navbar');
 var EntryList = require('./EntryList.android.js');
+var EntryDetail = require('./EntryDetail.android.js');
 
-var ReactVideoStreamingPlayer = React.createClass({
+var _navigator;
+BackAndroid.addEventListener('hardwareBackPress', () => {
+  if (_navigator && _navigator.getCurrentRoutes().length > 1) {
+    _navigator.pop();
+    return true;
+  }
+  return false;
+});
 
-  renderScene: function(route, nav) {
-    var Component = route.component;
-    var navBar = route.navigationBar;
-
-    if (navBar) {
-      navBar = React.addons.cloneWithProps(navBar, {
-        navigator: nav,
-        route: route
-      });
-    }
-
+var RouteMapper = function(route, navigationOperations, onComponentRef) {
+  _navigator = navigationOperations;
+  console.log("route.name=" + route.name);
+  if (route.name === 'search') {
     return (
-      <View style={styles.navigator}>
-        {navBar}
-        <Component {...route.passProps} navigator={nav} route={route} />
+      <View style={{flex: 1}}>
+        <EntryList navigator={navigationOperations} />
       </View>
     );
-  },
+  } else if (route.name === 'movie') {
+    return (
+      <View style={{flex: 1}}>
+        <ToolbarAndroid
+          actions={[]}
+          navIcon={require('image!android_back_white')}
+          onIconClicked={navigationOperations.pop}
+          style={styles.toolbar}
+          titleColor="white"
+          title={route.title} />
+        <EntryDetail
+          style={{flex: 1}}
+          navigator={navigationOperations}
+          movie={route.movie}
+          />
+      </View>
+    );
+  }
+}
 
-  configureScene: function(route) {
-    return Navigator.SceneConfigs.FloatFromBottom;
-  },
-
+var ReactVideoStreamingPlayer = React.createClass({
   render: function() {
+    var initialRoute = {name: 'search'};
     return (
       <Navigator
-        style={styles.navigator}
-        initialRoute={{
-          component: EntryList,
-          navigationBar: <NavigationBar title='Featured Entlies' />
-        }}
-        renderScene={this.renderScene}
-        configureScene={this.configureScene}
+        style={styles.container}
+        initialRoute={initialRoute}
+        renderScene={RouteMapper}
+        configureScene={() => Navigator.SceneConfigs.FadeAndroid}
       />
     );
   },
@@ -59,20 +73,12 @@ var ReactVideoStreamingPlayer = React.createClass({
 var styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5FCFF',
+    backgroundColor: 'white',
   },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
-  },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5,
-  },
+  toolbar: {
+    backgroundColor: '#a9a9a9',
+    height: 56,
+  }
 });
 
 AppRegistry.registerComponent('ReactVideoStreamingPlayer', () => ReactVideoStreamingPlayer);
