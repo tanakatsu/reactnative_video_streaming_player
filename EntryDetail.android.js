@@ -20,7 +20,7 @@ var EntryDetail = React.createClass({
   },
 
   render: function(){
-    var html = '<!DOCTYPE html><html><head><style>video {width: 100%;}</style></head><body><video controls><source src="' + this.props.movie.video_url + '" poster="' + this.props.movie.thumbnail_url + '"></body></html>';
+    var html = '<!DOCTYPE html><html><head><style>video {width: 100%;}</style></head><body><video controls poster="' + this.props.movie.thumbnail_url + '"><source src="' + this.props.movie.video_url + '"></video></body></html>';
     return(
       <View style={{flex: 1}}>
         <WebView
