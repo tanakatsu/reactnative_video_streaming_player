@@ -64,7 +64,7 @@ var SearchEntry = React.createClass({
     return(
       <View style={styles.activityIndicator}>
         <ActivityIndicatorIOS
-          animating={1}
+          animating={true}
           size={'large'}
           />
         <View>
