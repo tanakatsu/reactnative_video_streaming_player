@@ -69,7 +69,7 @@ var EntryList = React.createClass({
   onPressed: function(entry) {
     this.props.navigator.push({
       name: 'movie',
-      movie: { video_url: entry.hls_url, thumbnail_url: entry.thumbnail_url },
+      movie: { video_url: entry.hls_url, thumbnail_url: entry.thumbnail_url, width: entry.width, height: entry.height },
       title: entry.name
     })
   },

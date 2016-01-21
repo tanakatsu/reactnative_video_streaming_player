@@ -1,11 +1,13 @@
 'use strict';
 
 var React = require('react-native');
+var Dimensions = require('Dimensions');
 
 var {
   StyleSheet,
   View,
-  WebView
+  WebView,
+  Text
 } = React;
 
 var WEBVIEW_REF = 'webview';
@@ -20,8 +22,14 @@ var EntryDetail = React.createClass({
   },
 
   render: function(){
+    var aspect = this.props.movie.width / this.props.movie.height;
+    var { width, height, scale } = Dimensions.get('window');
+    var toolbar_offset = 100;
+    var width_percent = aspect >= 1 ? 100 : 100 * aspect * (height - toolbar_offset) / width; 
+    var style = 'html { height: 100% } body { height: 100%; margin: 5} .player { text-align:center; height: 100%; } .content { width: ' + width_percent + '%; }';
     var url = this.props.movie.video_url + '.m3u8';
-    var html = '<!DOCTYPE html><html><head><style>video {width: 100%;}</style></head><body><video controls poster="' + this.props.movie.thumbnail_url + '"><source src="' + url + '"></video></body></html>';
+    var html = '<!DOCTYPE html><html><head><style>' + style + '</style></head><body><div class="player"><video controls class="content" poster="' + this.props.movie.thumbnail_url + '"><source src="' + url + '"></video></div></body></html>';
+    // Emulatorだと正常に再生されない..
     return(
       <View style={{flex: 1}}>
         <WebView
